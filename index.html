@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>RoomieMatch — Find Your Ideal Flatmate in India</title>
+  <meta name="description" content="India's most intelligent roommate matching platform. Swipe to find your perfect flatmate based on 11 compatibility dimensions." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════ LANDING / ONBOARDING ══ -->
+<section id="landing" class="page page-landing active">
+  <div class="landing-inner">
+    <div class="landing-logo">
+      <span class="logo-icon">🏠</span>
+      <span class="logo-text">RoomieMatch</span>
+      <span class="logo-badge">India</span>
+    </div>
+    <h1 class="landing-title">Find a flatmate<br>who actually <em>fits</em>.</h1>
+    <p class="landing-sub">Behavioural science, not vibes. Swipe through verified profiles scored on 11 compatibility dimensions.</p>
+    <div class="landing-stats">
+      <div class="stat-pill"><strong>36</strong> Questions</div>
+      <div class="stat-pill"><strong>11</strong> Dimensions</div>
+      <div class="stat-pill"><strong>5</strong> Safety Gates</div>
+    </div>
+    <button class="btn-gold" id="landing-start-btn">
+      <span>Start the Quiz</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </button>
+    <button class="btn-outline" id="landing-demo-btn">Browse Demo Matches</button>
+    <div class="landing-pills">
+      <span class="dim-pill">🌙 Sleep</span>
+      <span class="dim-pill">🧹 Clean</span>
+      <span class="dim-pill">💸 Finance</span>
+      <span class="dim-pill">🏠 Social</span>
+      <span class="dim-pill">🗣️ Conflict</span>
+      <span class="dim-pill">🔒 Privacy</span>
+      <span class="dim-pill">🪔 Culture</span>
+      <span class="dim-pill">🧠 Personality</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ QUIZ ══ -->
+<section id="quiz" class="page page-quiz">
+  <div class="quiz-header">
+    <button class="quiz-back-btn" id="quiz-back-btn">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="quiz-progress-wrap">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+      <span class="quiz-progress-label" id="quiz-progress-label">1/36</span>
+    </div>
+  </div>
+  <div class="quiz-body">
+    <div class="quiz-section-label" id="quiz-section-label"></div>
+    <div class="quiz-card" id="quiz-card">
+      <!-- Injected by JS -->
+    </div>
+    <div class="quiz-actions">
+      <button class="btn-outline btn-sm" id="quiz-prev-btn">Back</button>
+      <button class="btn-gold btn-sm" id="quiz-next-btn">Continue</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SWIPE DECK ══ -->
+<section id="swipe" class="page page-swipe">
+  <!-- Top bar -->
+  <div class="swipe-top-bar">
+    <div class="swipe-logo">
+      <span class="logo-icon-sm">🏠</span>
+      <span class="logo-text-sm">RoomieMatch</span>
+    </div>
+    <button class="icon-btn" id="swipe-filter-btn" title="Filters">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
+    </button>
+  </div>
+
+  <!-- Card stack -->
+  <div class="card-stack" id="card-stack">
+    <!-- Injected by JS -->
+  </div>
+
+  <!-- Swipe action overlay indicators -->
+  <div class="swipe-indicator swipe-indicator-left" id="swipe-nope">NOPE</div>
+  <div class="swipe-indicator swipe-indicator-right" id="swipe-like">LIKE</div>
+  <div class="swipe-indicator swipe-indicator-top" id="swipe-super">SUPER</div>
+
+  <!-- Circular action buttons -->
+  <div class="action-buttons">
+    <button class="action-btn action-reject" id="btn-reject" title="Reject">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+    <button class="action-btn action-super" id="btn-super" title="Super Like">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </button>
+    <button class="action-btn action-like" id="btn-like" title="Like">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ MATCH DETAIL ══ -->
+<section id="match-detail" class="page page-match-detail">
+  <div class="detail-scroll">
+    <button class="detail-back-btn" id="detail-back-btn">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <span>Back</span>
+    </button>
+    <div id="detail-content">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ MATCHES ══ -->
+<section id="matches" class="page page-matches">
+  <div class="matches-header">
+    <h2>Your Matches</h2>
+    <p>People you've swiped right on</p>
+  </div>
+  <div class="matches-list" id="matches-list">
+    <!-- Injected by JS -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ CHAT ══ -->
+<section id="chat" class="page page-chat">
+  <div class="chat-header-bar">
+    <button class="icon-btn" id="chat-back-btn">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="chat-header-info" id="chat-header-info"></div>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-input-bar">
+    <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off" />
+    <button class="chat-send-btn" id="chat-send-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ FLOATING BOTTOM NAV ══ -->
+<nav class="bottom-nav" id="bottom-nav" style="display:none">
+  <button class="bottom-nav-item" data-page="swipe" id="nav-swipe">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+    <span>Discover</span>
+  </button>
+  <button class="bottom-nav-item" data-page="matches" id="nav-matches">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <span>Matches</span>
+  </button>
+  <button class="bottom-nav-item" data-page="chat" id="nav-chat">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span>Chat</span>
+  </button>
+  <button class="bottom-nav-item" data-page="profile" id="nav-profile">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Profile</span>
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ TOAST ══ -->
+<div id="toast" class="toast"></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
