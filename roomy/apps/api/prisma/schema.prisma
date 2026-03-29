@@ -1,0 +1,286 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ─────────────────────────────────────────────────────────────────
+
+enum UserMode {
+  FIND_ROOM
+  FIND_ROOMMATE
+}
+
+enum SwipeAction {
+  LIKE
+  REJECT
+  SUPER
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  SYSTEM
+}
+
+enum GroupRole {
+  ADMIN
+  MEMBER
+}
+
+enum AttendeeStatus {
+  GOING
+  MAYBE
+  NOT_GOING
+}
+
+// ─── Models ────────────────────────────────────────────────────────────────
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  passwordHash    String?  // null for OAuth-only users
+  googleId        String?  @unique
+  name            String
+  age             Int
+  profession      String?
+  bio             String?
+  instagramId     String?
+  avatarUrl       String?
+  mode            UserMode @default(FIND_ROOMMATE)
+  smoking         Boolean  @default(false)
+  drinking        Boolean  @default(false)
+  pets            Boolean  @default(false)
+  budgetMin       Int?
+  budgetMax       Int?
+  city            String?
+  area            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  quizAnswers          QuizAnswers?
+  listings             Listing[]
+  swipesGiven          Swipe[]              @relation("SwipeFrom")
+  swipesReceived       Swipe[]              @relation("SwipeTo")
+  matchesAsUser        Match[]              @relation("MatchUser")
+  matchesAsMatched     Match[]              @relation("MatchMatched")
+  groupMemberships     GroupMember[]
+  sentMessages         Message[]
+  applications         Application[]
+  createdEvents        Event[]
+  eventAttendances     EventAttendee[]
+  expensesPaid         Expense[]
+  expenseSplits        ExpenseSplit[]
+  compatibilityCacheA  CompatibilityCache[] @relation("CacheUserA")
+  compatibilityCacheB  CompatibilityCache[] @relation("CacheUserB")
+
+  @@index([mode, city])
+}
+
+model QuizAnswers {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers   Json     // { q1: 2, q2: 1, q3: 7.5, ... }
+  tags      String[]
+  selfInsight String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Swipe {
+  id        String      @id @default(cuid())
+  fromId    String
+  toId      String
+  action    SwipeAction
+  from      User        @relation("SwipeFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to        User        @relation("SwipeTo", fields: [toId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@unique([fromId, toId])
+  @@index([fromId])
+  @@index([toId])
+}
+
+model Match {
+  id         String   @id @default(cuid())
+  userId     String
+  matchedId  String
+  score      Int
+  user       User     @relation("MatchUser", fields: [userId], references: [id], onDelete: Cascade)
+  matched    User     @relation("MatchMatched", fields: [matchedId], references: [id], onDelete: Cascade)
+  chat       Chat?
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, matchedId])
+  @@index([userId])
+}
+
+model CompatibilityCache {
+  userAId   String
+  userBId   String
+  score     Int
+  dimScores Json
+  flags     Json
+  hardBlock Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+
+  userA     User @relation("CacheUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB     User @relation("CacheUserB", fields: [userBId], references: [id], onDelete: Cascade)
+
+  @@id([userAId, userBId])
+  @@index([userAId])
+}
+
+model Listing {
+  id             String   @id @default(cuid())
+  ownerId        String
+  owner          User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title          String
+  description    String   @db.Text
+  rent           Int
+  deposit        Int?
+  location       String
+  area           String
+  city           String
+  photos         String[]
+  roomDetails    Json     // { furnished, ac, attachedBath, balcony, parking, wifi, bhk }
+  currentTenants Json     // [{ name, profession, avatarUrl }]
+  availableFrom  DateTime
+  isActive       Boolean  @default(true)
+  applicants     Application[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([city, isActive])
+  @@index([ownerId])
+}
+
+model Application {
+  id          String            @id @default(cuid())
+  listingId   String
+  applicantId String
+  listing     Listing           @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  applicant   User              @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  status      ApplicationStatus @default(PENDING)
+  message     String?
+  createdAt   DateTime          @default(now())
+
+  @@unique([listingId, applicantId])
+  @@index([listingId])
+}
+
+model Chat {
+  id        String    @id @default(cuid())
+  matchId   String    @unique
+  match     Match     @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  messages  Message[]
+  createdAt DateTime  @default(now())
+}
+
+model Message {
+  id        String      @id @default(cuid())
+  chatId    String
+  senderId  String
+  chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender    User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content   String      @db.Text
+  type      MessageType @default(TEXT)
+  readAt    DateTime?
+  createdAt DateTime    @default(now())
+
+  @@index([chatId, createdAt])
+}
+
+model Group {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  avatarUrl   String?
+  members     GroupMember[]
+  expenses    Expense[]
+  events      Event[]
+  createdAt   DateTime      @default(now())
+}
+
+model GroupMember {
+  id       String    @id @default(cuid())
+  groupId  String
+  userId   String
+  role     GroupRole @default(MEMBER)
+  group    Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt DateTime  @default(now())
+
+  @@unique([groupId, userId])
+  @@index([userId])
+}
+
+model Expense {
+  id           String         @id @default(cuid())
+  groupId      String
+  group        Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  title        String
+  totalAmount  Float
+  paidById     String
+  paidBy       User           @relation(fields: [paidById], references: [id])
+  billImageUrl String?
+  ocrData      Json?          // [{ name, price }]
+  splits       ExpenseSplit[]
+  createdAt    DateTime       @default(now())
+
+  @@index([groupId])
+}
+
+model ExpenseSplit {
+  id        String  @id @default(cuid())
+  expenseId String
+  userId    String
+  amount    Float
+  settled   Boolean @default(false)
+  expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([expenseId, userId])
+}
+
+model Event {
+  id          String          @id @default(cuid())
+  groupId     String?
+  group       Group?          @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  creatorId   String
+  creator     User            @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  location    String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  isPublic    Boolean         @default(false)
+  attendees   EventAttendee[]
+  createdAt   DateTime        @default(now())
+
+  @@index([startsAt, isPublic])
+}
+
+model EventAttendee {
+  eventId String
+  userId  String
+  status  AttendeeStatus @default(GOING)
+  event   Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+}
